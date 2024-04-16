@@ -1,1 +1,9 @@
 Clone the repo into your local IDE. Configure local python interpreter and create a virtual environment with the requirement.txt file
+
+Creating virutal environment (windows): 
+python -m venv <env_name>
+.\<env_name>\Scripts\activate
+pip install -r requirements.txt
+
+If you install any new packages within the virtual environment update the requirements.txt using this:
+pip freeze > requirements.txt
