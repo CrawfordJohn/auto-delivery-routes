@@ -1,0 +1,1 @@
+Clone the repo into your local IDE. Configure local python interpreter and create a virtual environment with the requirement.txt file
