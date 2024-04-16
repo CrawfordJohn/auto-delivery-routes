@@ -5,20 +5,23 @@ import io
 
 app = Flask(__name__)
 
-
 @app.route('/')
 def hello_world():
     # Create a BytesIO buffer to store the plot
     buffer = io.BytesIO()
 
-    # Create the Basemap plot
-    m = Basemap(width=12000000, height=9000000, projection='lcc',
-                resolution='c', lat_1=45., lat_2=55, lat_0=50, lon_0=-107.)
-    # draw coastlines.
+    # Create a larger figure
+    plt.figure(figsize=(12, 9))  # Adjust the size as needed
+
+    # Create the Basemap plot focused on Florida
+    m = Basemap(llcrnrlon=-87.634896, llcrnrlat=24.396308,
+                urcrnrlon=-79.974306, urcrnrlat=31.000888,
+                resolution='i', projection='merc', lat_0=28.5, lon_0=-82.5)
+    # Draw coastlines.
     m.drawcoastlines()
-    # draw a boundary around the map, fill the background.
+    # Draw a boundary around the map, fill the background.
     m.drawmapboundary(fill_color='aqua')
-    # fill continents, set lake color same as ocean color.
+    # Fill continents, set lake color same as ocean color.
     m.fillcontinents(color='coral', lake_color='aqua')
 
     # Save the plot to the buffer
@@ -31,7 +34,6 @@ def hello_world():
 
     # Return the image file
     return send_file(buffer, mimetype='image/png')
-
 
 if __name__ == '__main__':
     app.run()
