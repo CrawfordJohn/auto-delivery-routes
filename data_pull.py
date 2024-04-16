@@ -1,14 +1,12 @@
 import osmnx as ox
 
-# Specify the location
-location = "Miami, Florida"
+#Define bounding box (Greater Miami Area)
+west, south, east, north = -80.634155,25.219851,-79.826660,26.902477
 
-# Load the street network
-G = ox.graph_from_place(location, network_type='drive')
+G = ox.graph_from_bbox(north, south, east, west, network_type='drive')
+fig, ax = ox.plot_graph(G)
 
-
-# Get nodes and edges
 nodes, edges = ox.graph_to_gdfs(G, nodes=True, edges=True)
 
-# Nodes are intersections and points along the streets
-# Edges include distances (default is length in meters)
+#nodes[["y", "x", "street_count", "geometry"]].to_csv("nodes.csv")
+#edges[["osmid", "length", "geometry"]].to_csv("edges.csv")
