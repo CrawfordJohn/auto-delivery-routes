@@ -1,9 +1,20 @@
 from flask import Flask, send_file
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+import geopandas as gpd
+import folium
+import mapclassify
 import io
 
-app = Flask(__name__)
+# app = Flask(__name__)
+#
+# file = gpd.read_file('comarea\ComArea_ACS14_f.shp')
+#
+# m = file.explore('Property_C')
+#
+# m
+
+
 
 @app.route('/')
 def hello_world():
@@ -34,6 +45,7 @@ def hello_world():
 
     # Return the image file
     return send_file(buffer, mimetype='image/png')
+
 
 if __name__ == '__main__':
     app.run()
