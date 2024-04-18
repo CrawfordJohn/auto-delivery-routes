@@ -1,9 +1,8 @@
-from flask import Flask, send_file, render_template
+from flask import Flask, send_file, render_template_string
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import geopandas as gpd
 import folium
-import mapclassify
 import io
 
 
@@ -12,9 +11,31 @@ app = Flask(__name__)
 
 @app.route("/")
 def fullscreen():
-   """Simple example of a fullscreen map."""
-   m = folium.Map()
-   return m.get_root().render()
+    # Coordinates for Florida
+    lat_min = 24.396308
+    lat_max = 31.001056
+    lon_min = -87.634938
+    lon_max = -79.974306
+
+    # Creates a map centered around Florida
+    m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
+
+    # Restricts map view to Florida
+    m.fit_bounds([[lat_min, lon_min], [lat_max, lon_max]])
+
+    # Adds a feature group for the highlighted roads
+    road_layer = folium.FeatureGroup(name='Highlighted Roads')
+
+    # Add coordinates for roads
+    road_coordinates = [(27.994402, -81.760254), (27.947760, -81.733345)]
+
+    # Add the road to the feature group as a polyline
+    road_layer.add_child(folium.PolyLine(locations=road_coordinates, color='red'))
+
+    # Add the feature group to the map
+    m.add_child(road_layer)
+
+    return m._repr_html_()
 
 
 
