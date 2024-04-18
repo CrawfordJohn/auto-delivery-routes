@@ -20,7 +20,7 @@ def fullscreen():
 
     # Create Graph and Initialize start and end node
     G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
-    start_node, end_node = nodes_df['osmid'].sample(2, random_state=0)
+    start_node, end_node = nodes_df['osmid'].sample(2)
 
     ##Need to implement these from stratch
     path = nx.dijkstra_path(G, start_node, end_node, weight='length')
@@ -65,74 +65,20 @@ def fullscreen():
             opacity=0.5
         ).add_to(m)
 
-    return m._repr_html_()
 
+    # Create the button to add a marker at the specified osmid location
+    button_html = """
+    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+        <form id="markerForm">
+            <label for="osmid">Enter OSM ID:</label>
+            <input type="text" id="osmid" name="osmid">
+            <input type="submit" value="Add Marker">
+        </form>
+    </div>
+    """
 
-@app.route("/iframe")
-def iframe():
-   """Embed a map as an iframe on a page."""
-   m = folium.Map()
-
-
-   # set the iframe width and height
-   m.get_root().width = "800px"
-   m.get_root().height = "600px"
-   iframe = m.get_root()._repr_html_()
-
-
-   return render_template_string(
-       """
-           <!DOCTYPE html>
-           <html>
-               <head></head>
-               <body>
-                   <h1>Using an iframe</h1>
-                   {{ iframe|safe }}
-               </body>
-           </html>
-       """,
-       iframe=iframe,
-   )
-
-
-
-
-@app.route("/components")
-def components():
-   """Extract map components and put those on a page."""
-   m = folium.Map(
-       width=800,
-       height=600,
-   )
-
-
-   m.get_root().render()
-   header = m.get_root().header.render()
-   body_html = m.get_root().html.render()
-   script = m.get_root().script.render()
-
-
-   return render_template_string(
-       """
-           <!DOCTYPE html>
-           <html>
-               <head>
-                   {{ header|safe }}
-               </head>
-               <body>
-                   <h1>Using components</h1>
-                   {{ body_html|safe }}
-                   <script>
-                       {{ script|safe }}
-                   </script>
-               </body>
-           </html>
-       """,
-       header=header,
-       body_html=body_html,
-       script=script,
-   )
-
+    # Return the map and the button HTML
+    return f"{button_html}{m._repr_html_()}"
 
 
 
