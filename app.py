@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 import folium
 import io
+import pandas as pd
 
 
 app = Flask(__name__)
@@ -13,9 +14,9 @@ app = Flask(__name__)
 def fullscreen():
     # Coordinates for Florida
     lat_min = 24.396308
-    lat_max = 31.001056
-    lon_min = -87.634938
-    lon_max = -79.974306
+    lat_max = 27.001056
+    lon_min = -82.634938
+    lon_max = -78.974306
 
     # Creates a map centered around Florida
     m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
@@ -23,17 +24,16 @@ def fullscreen():
     # Restricts map view to Florida
     m.fit_bounds([[lat_min, lon_min], [lat_max, lon_max]])
 
-    # Adds a feature group for the highlighted roads
-    road_layer = folium.FeatureGroup(name='Highlighted Roads')
+    # Load nodes from CSV file
+    nodes_df = pd.read_csv('nodes.csv')
 
-    # Add coordinates for roads
-    road_coordinates = [(27.994402, -81.760254), (27.947760, -81.733345)]
+    # Sample a subset of nodes (e.g., 100 nodes)
+    sample_size = 100
+    sampled_nodes = nodes_df.sample(n=sample_size)
 
-    # Add the road to the feature group as a polyline
-    road_layer.add_child(folium.PolyLine(locations=road_coordinates, color='red'))
-
-    # Add the feature group to the map
-    m.add_child(road_layer)
+    # Add each sampled node as a dot on the map
+    for index, row in sampled_nodes.iterrows():
+        folium.Marker(location=[row['y'], row['x']], popup=str(row['osmid'])).add_to(m)
 
     return m._repr_html_()
 
