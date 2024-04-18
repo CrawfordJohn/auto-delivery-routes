@@ -3,13 +3,29 @@ import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
 from dijkstra_file import dijkstra
+from bf_file import bellman_ford
 ##Load the Data
 nodes_df = pd.read_csv('nodes.csv')
 edges_df = pd.read_csv('edges.csv').reset_index()[['u','v', 'length']]
 
 #Create Graph and Initialize start and end node
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
-start_node, end_node = nodes_df['osmid'].sample(2, random_state=0)
+
+#below is what I tried to get subset of dataframe from, but doesn't ensure nodes are connected
+"""
+# Read the first 100 rows of edges.csv
+edges_df = pd.read_csv('edges.csv').head(250000)
+
+# Read the nodes.csv
+nodes_df = pd.read_csv('nodes.csv')
+
+# Filter nodes DataFrame to include only the nodes that correspond to edges in the first 100 rows
+filtered_nodes_df = nodes_df[nodes_df['osmid'].isin(edges_df['u']) | nodes_df['osmid'].isin(edges_df['v'])]
+
+# Create a graph
+G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
+"""
+start_node, end_node = nodes_df['osmid'].sample(2)
 
 ##Need to implement these from stratch
 path = dijkstra(G,start_node, end_node)
