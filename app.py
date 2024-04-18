@@ -7,53 +7,52 @@ import io
 import pandas as pd
 import networkx as nx
 from folium.plugins import MarkerCluster
-
+import random
 
 app = Flask(__name__)
+
+# Load the Data
+nodes_df = pd.read_csv('nodes.csv')
+edges_df = pd.read_csv('edges.csv').reset_index()[['u', 'v', 'length']]
+
+# Create Graph and Initialize start and end node
+G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
+
+start_node = nodes_df['osmid'].sample(1).iloc[0]
 
 
 @app.route("/")
 def fullscreen():
-    ## Load the Data
-    nodes_df = pd.read_csv('nodes.csv')
-    edges_df = pd.read_csv('edges.csv').reset_index()[['u', 'v', 'length']]
+    global nodes_df, edges_df, G, start_node, end_node
 
-    # Create Graph and Initialize start and end node
-    G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
-    start_node, end_node = nodes_df['osmid'].sample(2)
+    end_node = nodes_df['osmid'].sample(1).iloc[0]
 
-    ##Need to implement these from stratch
     path = nx.dijkstra_path(G, start_node, end_node, weight='length')
-    print(nx.shortest_path_length(G, start_node, end_node, weight='length'))
 
-    # get data for nodes and edges along shortest path
     selected_nodes = nodes_df[nodes_df['osmid'].isin(path)]
     selected_edges = edges_df[
         (edges_df['u'].isin(selected_nodes['osmid'])) & (edges_df['v'].isin(selected_nodes['osmid']))]
 
-    # create map
-    m = folium.Map(location=[selected_nodes['y'].mean(), selected_nodes['x'].mean()], zoom_start=13)
-    marker_cluster = MarkerCluster().add_to(m)
+    m = folium.Map(location=[26, -80.25], zoom_start=8)
 
     car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
-    # add the nodes to the map
+
+    markers = {}  # Dictionary to hold marker objects for selected nodes
+
     for _, row in selected_nodes.iterrows():
-        if row['osmid'] in [start_node, end_node]:
-            folium.Marker(
+        if row['osmid'] == start_node:
+            markers[row['osmid']] = folium.Marker(
+                location=[row['y'], row['x']],
+                popup=f"id: {row['osmid']}, lat: {row['y']}, lon: {row['x']}",
+                icon=car_icon
+            ).add_to(m)
+        if row['osmid'] == end_node:
+            markers[row['osmid']] = folium.Marker(
                 location=[row['y'], row['x']],
                 popup=f"id: {row['osmid']}, lat: {row['y']}, lon: {row['x']}",
                 icon=folium.Icon(color='blue', icon='map-marker')
             ).add_to(m)
-        # uncomment if want to show intermediate nodes
-        """else:
-            folium.Marker(
-                location=[row['y'], row['x']],
-                popup=f"id: {row['osmid']}, lat: {row['lat']}, lon: {row['lon']}",
-                icon=folium.Icon(color='blue', icon='map-marker')
-            ).add_to(m)
-            """
 
-    # add the edges to the map
     for _, row in selected_edges.iterrows():
         folium.PolyLine(
             locations=[(nodes_df.loc[nodes_df['osmid'] == row['u']]['y'].values[0],
@@ -66,21 +65,18 @@ def fullscreen():
             opacity=0.5
         ).add_to(m)
 
-
-    # Create the button to add a marker at the specified osmid location
+    # Create the button to re-randomize nodes and re-visualize
     button_html = """
-    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
-        <form id="markerForm">
-            <label for="osmid">Enter OSM ID:</label>
-            <input type="text" id="osmid" name="osmid">
-            <input type="submit" value="Add Marker">
-        </form>
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+        <button onclick="location.reload();">Re-Randomize Nodes</button>
     </div>
     """
 
-    # Return the map and the button HTML
+    start_node = end_node
+
     return f"{button_html}{m._repr_html_()}"
 
 
+
 if __name__ == "__main__":
-   app.run(debug=True)
+    app.run(debug=True)
