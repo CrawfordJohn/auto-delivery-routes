@@ -2,7 +2,7 @@ import networkx as nx
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
-
+from dijkstra_file import dijkstra
 ##Load the Data
 nodes_df = pd.read_csv('nodes.csv')
 edges_df = pd.read_csv('edges.csv').reset_index()[['u','v', 'length']]
@@ -12,7 +12,7 @@ G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.
 start_node, end_node = nodes_df['osmid'].sample(2, random_state=0)
 
 ##Need to implement these from stratch
-path = nx.dijkstra_path(G, start_node, end_node, weight='length')
+path = dijkstra(G,start_node, end_node)
 print(nx.shortest_path_length(G, start_node, end_node, weight='length'))
 
 #get data for nodes and edges along shortest path
