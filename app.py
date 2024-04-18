@@ -8,6 +8,8 @@ import pandas as pd
 import networkx as nx
 from folium.plugins import MarkerCluster
 import random
+from dijkstra_file import dijkstra
+from bf_file import bellman_ford
 
 app = Flask(__name__)
 
@@ -27,7 +29,7 @@ def fullscreen():
 
     end_node = nodes_df['osmid'].sample(1).iloc[0]
 
-    path = nx.dijkstra_path(G, start_node, end_node, weight='length')
+    path = dijkstra(G, start_node, end_node)
 
     selected_nodes = nodes_df[nodes_df['osmid'].isin(path)]
     selected_edges = edges_df[
