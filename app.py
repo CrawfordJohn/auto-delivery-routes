@@ -5,6 +5,8 @@ import geopandas as gpd
 import folium
 import io
 import pandas as pd
+import networkx as nx
+from folium.plugins import MarkerCluster
 
 
 app = Flask(__name__)
@@ -12,99 +14,71 @@ app = Flask(__name__)
 
 @app.route("/")
 def fullscreen():
-    # Coordinates for Florida
-    lat_min = 24.396308
-    lat_max = 27.001056
-    lon_min = -82.634938
-    lon_max = -78.974306
-
-    # Creates a map centered around Florida
-    m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
-
-    # Restricts map view to Florida
-    m.fit_bounds([[lat_min, lon_min], [lat_max, lon_max]])
-
-    # Load nodes from CSV file
+    ##Load the Data
     nodes_df = pd.read_csv('nodes.csv')
+    edges_df = pd.read_csv('edges.csv').reset_index()[['u', 'v', 'length']]
 
-    # Sample a subset of nodes (e.g., 100 nodes)
-    sample_size = 100
-    sampled_nodes = nodes_df.sample(n=sample_size)
+    # Create Graph and Initialize start and end node
+    G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
+    start_node, end_node = nodes_df['osmid'].sample(2)
 
-    # Add each sampled node as a dot on the map
-    for index, row in sampled_nodes.iterrows():
-        folium.Marker(location=[row['y'], row['x']], popup=str(row['osmid'])).add_to(m)
+    ##Need to implement these from stratch
+    path = nx.dijkstra_path(G, start_node, end_node, weight='length')
+    print(nx.shortest_path_length(G, start_node, end_node, weight='length'))
 
-    return m._repr_html_()
+    # get data for nodes and edges along shortest path
+    selected_nodes = nodes_df[nodes_df['osmid'].isin(path)]
+    selected_edges = edges_df[
+        (edges_df['u'].isin(selected_nodes['osmid'])) & (edges_df['v'].isin(selected_nodes['osmid']))]
 
+    # create map
+    m = folium.Map(location=[selected_nodes['y'].mean(), selected_nodes['x'].mean()], zoom_start=13)
+    marker_cluster = MarkerCluster().add_to(m)
 
+    # add the nodes to the map
+    for _, row in selected_nodes.iterrows():
+        if row['osmid'] in [start_node, end_node]:
+            folium.Marker(
+                location=[row['y'], row['x']],
+                popup=f"id: {row['osmid']}, lat: {row['y']}, lon: {row['x']}",
+                icon=folium.Icon(color='blue', icon='map-marker')
+            ).add_to(m)
+        # uncomment if want to show intermediate nodes
+        """else:
+            folium.Marker(
+                location=[row['y'], row['x']],
+                popup=f"id: {row['osmid']}, lat: {row['lat']}, lon: {row['lon']}",
+                icon=folium.Icon(color='blue', icon='map-marker')
+            ).add_to(m)
+            """
 
-
-@app.route("/iframe")
-def iframe():
-   """Embed a map as an iframe on a page."""
-   m = folium.Map()
-
-
-   # set the iframe width and height
-   m.get_root().width = "800px"
-   m.get_root().height = "600px"
-   iframe = m.get_root()._repr_html_()
-
-
-   return render_template_string(
-       """
-           <!DOCTYPE html>
-           <html>
-               <head></head>
-               <body>
-                   <h1>Using an iframe</h1>
-                   {{ iframe|safe }}
-               </body>
-           </html>
-       """,
-       iframe=iframe,
-   )
-
-
-
-
-@app.route("/components")
-def components():
-   """Extract map components and put those on a page."""
-   m = folium.Map(
-       width=800,
-       height=600,
-   )
+    # add the edges to the map
+    for _, row in selected_edges.iterrows():
+        folium.PolyLine(
+            locations=[(nodes_df.loc[nodes_df['osmid'] == row['u']]['y'].values[0],
+                        nodes_df.loc[nodes_df['osmid'] == row['u']]['x'].values[0]),
+                       (nodes_df.loc[nodes_df['osmid'] == row['v']]['y'].values[0],
+                        nodes_df.loc[nodes_df['osmid'] == row['v']]['x'].values[0])],
+            popup=f"start_node_id: {row['u']}, end_node_id: {row['v']}, dist: {row['length']}",
+            color='red',
+            weight=2,
+            opacity=0.5
+        ).add_to(m)
 
 
-   m.get_root().render()
-   header = m.get_root().header.render()
-   body_html = m.get_root().html.render()
-   script = m.get_root().script.render()
+    # Create the button to add a marker at the specified osmid location
+    button_html = """
+    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+        <form id="markerForm">
+            <label for="osmid">Enter OSM ID:</label>
+            <input type="text" id="osmid" name="osmid">
+            <input type="submit" value="Add Marker">
+        </form>
+    </div>
+    """
 
-
-   return render_template_string(
-       """
-           <!DOCTYPE html>
-           <html>
-               <head>
-                   {{ header|safe }}
-               </head>
-               <body>
-                   <h1>Using components</h1>
-                   {{ body_html|safe }}
-                   <script>
-                       {{ script|safe }}
-                   </script>
-               </body>
-           </html>
-       """,
-       header=header,
-       body_html=body_html,
-       script=script,
-   )
-
+    # Return the map and the button HTML
+    return f"{button_html}{m._repr_html_()}"
 
 
 
