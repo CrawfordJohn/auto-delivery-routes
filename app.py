@@ -8,7 +8,6 @@ import pandas as pd
 import networkx as nx
 from folium.plugins import MarkerCluster
 import random
-import time
 
 app = Flask(__name__)
 
@@ -28,16 +27,7 @@ def fullscreen():
 
     end_node = nodes_df['osmid'].sample(1).iloc[0]
 
-    # Measure the time before running Dijkstra's algorithm
-    dijkstra_start_time = time.time()
-
     path = nx.dijkstra_path(G, start_node, end_node, weight='length')
-
-    # Measure the time after running Dijkstra's algorithm
-    dijkstra_end_time = time.time()
-
-    # Calculate the time difference
-    dijkstra_time = dijkstra_end_time - dijkstra_start_time
 
     selected_nodes = nodes_df[nodes_df['osmid'].isin(path)]
     selected_edges = edges_df[
@@ -82,16 +72,9 @@ def fullscreen():
     </div>
     """
 
-    # Visualize dijkstra time in the bottom right corner
-    dijkstra_time_html = f"""
-        <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
-            Dijkstra Time: {dijkstra_time:.4f} seconds
-        </div>
-        """
-
     start_node = end_node
 
-    return f"{button_html}{dijkstra_time_html}{m._repr_html_()}"
+    return f"{button_html}{m._repr_html_()}"
 
 
 
