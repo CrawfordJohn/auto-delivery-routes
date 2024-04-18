@@ -1,4 +1,4 @@
-from flask import Flask, send_file
+from flask import Flask, send_file, render_template
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import geopandas as gpd
@@ -6,46 +6,87 @@ import folium
 import mapclassify
 import io
 
-# app = Flask(__name__)
-#
-# file = gpd.read_file('comarea\ComArea_ACS14_f.shp')
-#
-# m = file.explore('Property_C')
-#
-# m
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def fullscreen():
+   """Simple example of a fullscreen map."""
+   m = folium.Map()
+   return m.get_root().render()
 
 
 
-@app.route('/')
-def hello_world():
-    # Create a BytesIO buffer to store the plot
-    buffer = io.BytesIO()
 
-    # Create a larger figure
-    plt.figure(figsize=(12, 9))  # Adjust the size as needed
-
-    # Create the Basemap plot focused on Florida
-    m = Basemap(llcrnrlon=-87.634896, llcrnrlat=24.396308,
-                urcrnrlon=-79.974306, urcrnrlat=31.000888,
-                resolution='i', projection='merc', lat_0=28.5, lon_0=-82.5)
-    # Draw coastlines.
-    m.drawcoastlines()
-    # Draw a boundary around the map, fill the background.
-    m.drawmapboundary(fill_color='aqua')
-    # Fill continents, set lake color same as ocean color.
-    m.fillcontinents(color='coral', lake_color='aqua')
-
-    # Save the plot to the buffer
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-
-    # Clear the plot to avoid memory leaks
-    plt.clf()
-    plt.close()
-
-    # Return the image file
-    return send_file(buffer, mimetype='image/png')
+@app.route("/iframe")
+def iframe():
+   """Embed a map as an iframe on a page."""
+   m = folium.Map()
 
 
-if __name__ == '__main__':
-    app.run()
+   # set the iframe width and height
+   m.get_root().width = "800px"
+   m.get_root().height = "600px"
+   iframe = m.get_root()._repr_html_()
+
+
+   return render_template_string(
+       """
+           <!DOCTYPE html>
+           <html>
+               <head></head>
+               <body>
+                   <h1>Using an iframe</h1>
+                   {{ iframe|safe }}
+               </body>
+           </html>
+       """,
+       iframe=iframe,
+   )
+
+
+
+
+@app.route("/components")
+def components():
+   """Extract map components and put those on a page."""
+   m = folium.Map(
+       width=800,
+       height=600,
+   )
+
+
+   m.get_root().render()
+   header = m.get_root().header.render()
+   body_html = m.get_root().html.render()
+   script = m.get_root().script.render()
+
+
+   return render_template_string(
+       """
+           <!DOCTYPE html>
+           <html>
+               <head>
+                   {{ header|safe }}
+               </head>
+               <body>
+                   <h1>Using components</h1>
+                   {{ body_html|safe }}
+                   <script>
+                       {{ script|safe }}
+                   </script>
+               </body>
+           </html>
+       """,
+       header=header,
+       body_html=body_html,
+       script=script,
+   )
+
+
+
+
+if __name__ == "__main__":
+   app.run(debug=True)
+
