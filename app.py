@@ -18,8 +18,14 @@ app = Flask(__name__)
 nodes_df = pd.read_csv('nodes.csv')
 edges_df = pd.read_csv('edges.csv').reset_index()[['u', 'v', 'length']]
 
+west, south, east, north = -80.380096,25.641690,-80.083466,25.886501
+nodes_df = nodes_df[(nodes_df['y'] < north) & (nodes_df['y'] > south) & (nodes_df['x'] > west) & (nodes_df['x'] < east)]
+edges_df = edges_df[edges_df['u'].isin(nodes_df['osmid']) & edges_df['v'].isin(nodes_df['osmid'])]
+
 # Create Graph and Initialize start and end node
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
+
+
 
 start_node = nodes_df['osmid'].sample(1).iloc[0]
 

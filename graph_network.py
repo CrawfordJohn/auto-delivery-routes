@@ -8,8 +8,6 @@ from bf_file import bellman_ford
 nodes_df = pd.read_csv('nodes.csv')
 edges_df = pd.read_csv('edges.csv').reset_index()[['u','v', 'length']]
 
-#Create Graph and Initialize start and end node
-G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
 
 #below is what I tried to get subset of dataframe from, but doesn't ensure nodes are connected
 west, south, east, north = -80.380096,25.641690,-80.083466,25.886501
@@ -23,7 +21,7 @@ G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.
 start_node, end_node = nodes_df['osmid'].sample(2)
 
 ##Need to implement these from stratch
-path = dijkstra(G,start_node, end_node)
+path = bellman_ford(G,start_node, end_node)
 print(nx.shortest_path_length(G, start_node, end_node, weight='length'))
 
 #get data for nodes and edges along shortest path
