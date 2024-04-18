@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def fullscreen():
-    ##Load the Data
+    ## Load the Data
     nodes_df = pd.read_csv('nodes.csv')
     edges_df = pd.read_csv('edges.csv').reset_index()[['u', 'v', 'length']]
 
@@ -35,6 +35,7 @@ def fullscreen():
     m = folium.Map(location=[selected_nodes['y'].mean(), selected_nodes['x'].mean()], zoom_start=13)
     marker_cluster = MarkerCluster().add_to(m)
 
+    car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
     # add the nodes to the map
     for _, row in selected_nodes.iterrows():
         if row['osmid'] in [start_node, end_node]:
@@ -81,7 +82,5 @@ def fullscreen():
     return f"{button_html}{m._repr_html_()}"
 
 
-
 if __name__ == "__main__":
    app.run(debug=True)
-
