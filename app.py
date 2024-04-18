@@ -51,7 +51,7 @@ def fullscreen():
     selected_edges = edges_df[
         (edges_df['u'].isin(selected_nodes['osmid'])) & (edges_df['v'].isin(selected_nodes['osmid']))]
 
-    m = folium.Map(location=[26, -80.25], zoom_start=8)
+    m = folium.Map(location=[25.75, -80.25], zoom_start=11)
 
     car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
 
