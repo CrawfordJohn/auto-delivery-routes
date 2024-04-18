@@ -12,19 +12,14 @@ edges_df = pd.read_csv('edges.csv').reset_index()[['u','v', 'length']]
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
 
 #below is what I tried to get subset of dataframe from, but doesn't ensure nodes are connected
-"""
-# Read the first 100 rows of edges.csv
-edges_df = pd.read_csv('edges.csv').head(250000)
-
-# Read the nodes.csv
-nodes_df = pd.read_csv('nodes.csv')
-
-# Filter nodes DataFrame to include only the nodes that correspond to edges in the first 100 rows
-filtered_nodes_df = nodes_df[nodes_df['osmid'].isin(edges_df['u']) | nodes_df['osmid'].isin(edges_df['v'])]
+west, south, east, north = -80.380096,25.641690,-80.083466,25.886501
+nodes_df = nodes_df[(nodes_df['y'] < north) & (nodes_df['y'] > south) & (nodes_df['x'] > west) & (nodes_df['x'] < east)]
+edges_df = edges_df[edges_df['u'].isin(nodes_df['osmid']) & edges_df['v'].isin(nodes_df['osmid'])]
 
 # Create a graph
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
-"""
+
+
 start_node, end_node = nodes_df['osmid'].sample(2)
 
 ##Need to implement these from stratch
