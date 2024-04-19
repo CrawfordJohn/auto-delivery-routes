@@ -38,7 +38,7 @@ def fullscreen():
     button_html = """
         <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; 
                     background-color: white; padding: 10px; border-radius: 5px;">
-            <button onclick="setShowPath(false);">Re-Randomize Nodes</button>
+            <button onclick="setShowPath(false);">Make Next Delivery!</button>
         </div>
         <div style="position: fixed; top: 60px; right: 10px; z-index: 9999; 
                     background-color: white; padding: 10px; border-radius: 5px;">
