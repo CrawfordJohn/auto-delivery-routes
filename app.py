@@ -12,6 +12,8 @@ from dijkstra_file import dijkstra
 from bf_file import bellman_ford
 import time
 
+MAP_STATE = "NO PATH"
+
 app = Flask(__name__)
 
 # Load the Data
@@ -27,19 +29,57 @@ G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.
 
 
 
-start_node = nodes_df['osmid'].sample(1).iloc[0]
+start_node = nodes_df.sample(1).iloc[0]
+end_node = nodes_df.sample(1).iloc[0]
 
 
 @app.route("/")
 def fullscreen():
     global nodes_df, edges_df, G, start_node, end_node
 
-    end_node = nodes_df['osmid'].sample(1).iloc[0]
+    m = folium.Map(location=[25.75, -80.25], zoom_start=11)
 
+    #time = compute_path(start_node, end_node, m)
+
+    car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
+
+    markers = {}  # Dictionary to hold marker objects for selected nodes
+
+    markers[start_node['osmid']] = folium.Marker(
+        location=[start_node['y'], start_node['x']],
+        popup=f"id: {start_node['osmid']}, lat: {start_node['y']}, lon: {start_node['x']}",
+        icon=car_icon
+        ).add_to(m)
+
+    markers[end_node['osmid']] = folium.Marker(
+        location=[end_node['y'], end_node['x']],
+        popup=f"id: {end_node['osmid']}, lat: {end_node['y']}, lon: {end_node['x']}",
+        icon=folium.Icon(color='blue', icon='map-marker')
+        ).add_to(m)
+
+
+    # Create the button to re-randomize nodes and re-visualize
+    button_html = """
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+        <button onclick="location.reload();">Re-Randomize Nodes</button>
+    </div>
+    """
+
+    start_node = end_node
+    end_node = nodes_df.sample(1).iloc[0]
+
+    return f"{button_html}{time}{m._repr_html_()}"
+
+
+def compute_path(start_node, end_node, m, algo = "d"):
+    global G
     # Measure the time before running Dijkstra's algorithm
     start_time = time.time()
 
-    path = dijkstra(G, start_node, end_node)
+    if (algo == "d"):
+        path = dijkstra(G, start_node, end_node)
+    else:
+        pass
 
     # Measure the time after running Dijkstra's algorithm
     end_time = time.time()
@@ -50,26 +90,6 @@ def fullscreen():
     selected_nodes = nodes_df[nodes_df['osmid'].isin(path)]
     selected_edges = edges_df[
         (edges_df['u'].isin(selected_nodes['osmid'])) & (edges_df['v'].isin(selected_nodes['osmid']))]
-
-    m = folium.Map(location=[25.75, -80.25], zoom_start=11)
-
-    car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
-
-    markers = {}  # Dictionary to hold marker objects for selected nodes
-
-    for _, row in selected_nodes.iterrows():
-        if row['osmid'] == start_node:
-            markers[row['osmid']] = folium.Marker(
-                location=[row['y'], row['x']],
-                popup=f"id: {row['osmid']}, lat: {row['y']}, lon: {row['x']}",
-                icon=car_icon
-            ).add_to(m)
-        if row['osmid'] == end_node:
-            markers[row['osmid']] = folium.Marker(
-                location=[row['y'], row['x']],
-                popup=f"id: {row['osmid']}, lat: {row['y']}, lon: {row['x']}",
-                icon=folium.Icon(color='blue', icon='map-marker')
-            ).add_to(m)
 
     for _, row in selected_edges.iterrows():
         folium.PolyLine(
@@ -83,24 +103,14 @@ def fullscreen():
             opacity=0.5
         ).add_to(m)
 
-    # Create the button to re-randomize nodes and re-visualize
-    button_html = """
-    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
-        <button onclick="location.reload();">Re-Randomize Nodes</button>
-    </div>
-    """
+        # Visualize dijkstra time in the bottom right corner
+        time_html = f"""
+                <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+                    Dijkstra Time: {new_time:.4f} seconds
+                </div>
+                """
 
-    # Visualize dijkstra time in the bottom right corner
-    dijkstra_time_html = f"""
-        <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
-            Dijkstra Time: {new_time:.4f} seconds
-        </div>
-        """
-
-    start_node = end_node
-
-    return f"{button_html}{dijkstra_time_html}{m._repr_html_()}"
-
+        return time_html
 
 
 if __name__ == "__main__":
