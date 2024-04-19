@@ -1,4 +1,4 @@
-from flask import Flask, send_file, render_template_string
+from flask import Flask, send_file, render_template_string, request
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import geopandas as gpd
@@ -12,7 +12,7 @@ from dijkstra_file import dijkstra
 from bf_file import bellman_ford
 import time
 
-MAP_STATE = "NO PATH"
+show_path = False
 
 app = Flask(__name__)
 
@@ -27,48 +27,78 @@ edges_df = edges_df[edges_df['u'].isin(nodes_df['osmid']) & edges_df['v'].isin(n
 # Create Graph and Initialize start and end node
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
 
-
-
 start_node = nodes_df.sample(1).iloc[0]
 end_node = nodes_df.sample(1).iloc[0]
 
 
 @app.route("/")
 def fullscreen():
-    global nodes_df, edges_df, G, start_node, end_node
+    global nodes_df, edges_df, G, start_node, end_node, show_path
 
     m = folium.Map(location=[25.75, -80.25], zoom_start=11)
 
-    #time = compute_path(start_node, end_node, m)
+    #if (show_path):
+    #    compute_path(start_node, end_node, m)
 
     car_icon = folium.features.CustomIcon('toy_car.png', icon_size=(50, 25))
 
     markers = {}  # Dictionary to hold marker objects for selected nodes
 
-    markers[start_node['osmid']] = folium.Marker(
-        location=[start_node['y'], start_node['x']],
-        popup=f"id: {start_node['osmid']}, lat: {start_node['y']}, lon: {start_node['x']}",
-        icon=car_icon
-        ).add_to(m)
-
-    markers[end_node['osmid']] = folium.Marker(
-        location=[end_node['y'], end_node['x']],
-        popup=f"id: {end_node['osmid']}, lat: {end_node['y']}, lon: {end_node['x']}",
-        icon=folium.Icon(color='blue', icon='map-marker')
-        ).add_to(m)
 
 
     # Create the button to re-randomize nodes and re-visualize
     button_html = """
     <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
-        <button onclick="location.reload();">Re-Randomize Nodes</button>
+        <button onclick="setShowPath(false);">Re-Randomize Nodes</button>
     </div>
+    <script>
+        function setShowPath(val) {
+            // Set show_path variable
+            location.href = '/set_show_path?val=' + val;
+            location.reload();
+        }
+    </script>
     """
 
-    start_node = end_node
-    end_node = nodes_df.sample(1).iloc[0]
+    dijsktra_button_html = """
+    <div style="position: fixed; top: 60px; right: 10px; z-index: 9999; background-color: white; padding: 10px; border-radius: 5px;">
+        <button onclick="setShowPath(true);">Dijkstra</button>
+    </div>
+    <script>
+        function setShowPath(val) {
+            // Set show_path variable
+            location.href = '/set_show_path?val=' + val;
+            location.reload();
+        }
+    </script>
+    """
 
-    return f"{button_html}{time}{m._repr_html_()}"
+    if (show_path == False):
+        start_node = end_node
+        end_node = nodes_df.sample(1).iloc[0]
+
+    markers[start_node['osmid']] = folium.Marker(
+        location=[start_node['y'], start_node['x']],
+        popup=f"id: {start_node['osmid']}, lat: {start_node['y']}, lon: {start_node['x']}",
+        icon=car_icon
+    ).add_to(m)
+
+    markers[end_node['osmid']] = folium.Marker(
+        location=[end_node['y'], end_node['x']],
+        popup=f"id: {end_node['osmid']}, lat: {end_node['y']}, lon: {end_node['x']}",
+        icon=folium.Icon(color='blue', icon='map-marker')
+    ).add_to(m)
+
+
+    return f"{button_html}{dijsktra_button_html}{m._repr_html_()}"
+
+
+@app.route("/set_show_path")
+def set_show_path():
+    global show_path
+    val = request.args.get('val')
+    show_path = val.lower() == 'true'
+    return "", 204
 
 
 def compute_path(start_node, end_node, m, algo = "d"):
