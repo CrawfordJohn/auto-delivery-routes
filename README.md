@@ -1,10 +1,12 @@
-<H1> COP3530 - Project 3 </h1>
+<H1> COP3530 - Project 3 - Optimizing Autonomous Delivery Service Routes for Efficient Service </h1>
 
-Documenation Link: https://docs.google.com/document/d/1RJMWSpWBeWStGjp1nlYEVxQblM0yW5HafNppgXqKibc/edit?usp=sharing
+**Background:** We are a delivery company testing out a new form of automated delivery using a self-driving car. Due to a new law, this operation is only legal within the city of Miami. Unfortunately, our vehicle is really small, and can only handle one order at a time. Orders are randomly generated from a set of ~100,000 distinct points across the state of Florida, and our task is to find the shortest distance between our previous delivery location and the new, randomly generated one using the existing network of roads. Our self-driving car drives at a constant speed of 50mph, and can drive on all types of roads, including highways. This constant speed means that we are only concerned with minimizing the distance on these drives. The problem we are trying to solve is finding the shortest distance between deliveries using roads, so that we can deliver our orders as fast as possible.
 
-This is the template for Project 3 repositories. It includes all the assignment instructions and documentation to help you use GitHub.
+<h2> Data Collection </h2>
 
-<h2> Table of Contents </h2>
+Our data was queried from [OpenStreetMap](https://www.openstreetmap.org/#map=5/29.037/-75.410), a large map dataset similar to Google Maps that is open-source and free to use. You can specifically query all roads within a specific latitude and longitude so that you do not have to download all of the data just to get what you are looking for.
+
+The latitude, longitude, and OpenStreetMap ID of each distinct delivery point w used can be found in the 
 
 - [Documentation and resources on how to use GitHub for Project 3](#documentation-and-resources-on-how-to-use-github-for-project-3)
 	- [Getting Started with the Project](#getting-started-with-the-project)
