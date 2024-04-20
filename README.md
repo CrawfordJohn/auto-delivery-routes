@@ -44,8 +44,8 @@ Make sure to exclude the caret marks (<>).
 pip install -r requirements.txt
 ```
 
-Now, you can open and run app.py on your local compiler.
-Your compiler will provide a link to a local host where you can view the web application.
+Now, you can open and run app.py on your local IDE (such as PyCharm).
+Your IDE will provide a link to a local host where you can view the web application.
 
 ![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/237d377e-9f4a-40ab-aaa2-89fea8d40bef)
 
