@@ -35,7 +35,7 @@ def fullscreen():
     m = folium.Map(location=[25.75, -80.25], zoom_start=11)
 
     # Create Buttons
-    button_html = """
+    button_html = """ 
         <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; 
                     background-color: white; padding: 10px; border-radius: 5px;">
             <button onclick="setShowPath(false);">Make Next Delivery!</button>
