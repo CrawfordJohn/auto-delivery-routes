@@ -37,7 +37,6 @@ def init_map():
 @app.route('/api/get_delivery')
 def get_delivery():
     global end_node
-    global start_node
     global init
     if init:
         end_node = nodes_df.sample(1).iloc[0]
@@ -45,6 +44,7 @@ def get_delivery():
         init = False
         return jsonify(location)
     else:
+        global start_node
         start_node = end_node
         end_node = nodes_df.sample(1).iloc[0]
         location = {"name": int(end_node['osmid']), "lat": end_node['y'], 'lng': end_node['x']}
