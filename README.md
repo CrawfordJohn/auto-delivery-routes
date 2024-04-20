@@ -23,7 +23,11 @@ git clone https://github.com/CrawfordJohn/auto-delivery-routes.git
 
 Once you have cloned the repository into your local IDE, you can configure your local python interpreter and create a virtual environment with the requirement.txt file
 
-To create a virutal environment, in your new auto-delivery-routes folder, run the following commands on your CLI (Windows): 
+To create a virutal environment, run the following commands on your CLI (Windows):
+
+```
+cd auto-delivery-routes
+```
 
 ```
 py -m venv <env_name>
