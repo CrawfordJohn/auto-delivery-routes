@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Delivery Routes</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-bottom: 5px;
+        }
+        .menu {
+            margin: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .menu button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .menu button:hover {
+            background-color: #0056b3;
+        }
+        .horizontal-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            width: 100%;
+            padding: 20px;
+        }
+        .statistics {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        .statistics h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .statistics p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        #mapid {
+            height: 700px; /* Set a height for the map */
+            width: 1200px; /* Optional: Set a width for the map */
+        }
+    </style>
+</head>
+<body>
+    <h1>Auto Delivery Routes</h1>
+    <div class="menu">
+        <button id="getDeliveryButton">Get New Delivery</button>
+        <button id="dijkstra" disabled>Compute Route w/ Dijkstra's</button>
+        <button id="bellman-ford" disabled>Compute Route w/ Bellman-Ford</button>
+    </div>
+    <div class="horizontal-container">
+        <div class="statistics">
+            <h2>Statistics</h2>
+            <p>Deliveries: <span id="deliveryCount">0</span></p>
+            <p>Distance Traveled: <span id="distanceCount">0 Km</span></p>
+            <p>Dijkstra's avg. time: <span id="dijkstraTime">0 ms</span></p>
+            <p>Bellman Ford avg. time: <span id="bellmanTime">0 ms</span></p>
+        </div>
+        <div id="mapid"></div> <!-- Map container added here -->
+    </div>
+    <script>
+        var map = L.map('mapid').setView([25.75, -80.25], 11);
+        var getDeliveryButton = document.getElementById('getDeliveryButton');
+        var dijkstra = document.getElementById('dijkstra');
+        var bellman_ford = document.getElementById('bellman-ford');
+        var initialization = true;
+        var prev_lat = 25.75;
+        var prev_lon = -80.25;
+        var customIcon = L.icon({
+                        iconUrl: '/static/toy_car.png',  // URL to your custom marker image
+                        iconSize: [48, 27],  // Size of the custom marker image
+                        iconAnchor: [24, 27],  // Point of the marker which will correspond to location
+                        popupAnchor: [0, -27]  // Point from which the popup should open relative to the iconAnchor
+                    });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function addCustomMarker() {
+            fetch('api/get_start')
+                .then(response => response.json())
+                .then(data => {
+                    L.marker([data.lat, data.lng], {icon: customIcon}).addTo(map)
+                        .bindPopup('Your custom marker popup content');
+                })
+                .catch(error => console.error('Error fetching location data:', error));
+        }
+
+        window.onload = addCustomMarker;
+
+        function clearMap() {
+             map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+                });
+
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.Polyline) {
+                        map.removeLayer(layer);
+                    }
+                });
+        }
+
+        function addDelivery() {
+            getDeliveryButton.disabled = true;
+            dijkstra.disabled = false;
+            bellman_ford.disabled = false;
+            if (initialization) {
+                fetch('/api/get_delivery')
+                .then(response => response.json())
+                .then(data => {
+                    prev_lat = data.lat
+                    prev_lon = data.lng
+                    L.marker([data.lat, data.lng]).addTo(map)
+                        .bindPopup(data.name)
+                        .openPopup();
+                })
+                .catch(error => console.error('Error fetching location data:', error));
+                initialization = false;
+            }
+            else {
+                clearMap()
+                L.marker([prev_lat, prev_lon], {icon: customIcon}).addTo(map)
+                 fetch('/api/get_delivery')
+                .then(response => response.json())
+                .then(data => {
+                    prev_lat = data.lat
+                    prev_lon = data.lng
+                    L.marker([data.lat, data.lng]).addTo(map)
+                        .bindPopup(data.name)
+                        .openPopup();
+            })
+            .catch(error => console.error('Error fetching location data:', error));
+            }
+        }
+        getDeliveryButton.addEventListener('click', addDelivery);
+
+        function compute_dijkstras() {
+            bellman_ford.disabled = true;
+            getDeliveryButton.disabled = false;
+            dijkstra.disabled = true;
+            fetch('/api/get_d_path')
+              .then(response => response.json())
+              .then(coordinates => {
+                L.polyline(coordinates, {color: 'red'}).addTo(map);
+              })
+              .catch(error => console.error('Error fetching coordinates:', error));
+
+        }
+        dijkstra.addEventListener('click', compute_dijkstras);
+
+        function compute_bellman_ford() {
+            bellman_ford.disabled = true;
+            getDeliveryButton.disabled = false;
+            dijkstra.disabled = true;
+            fetch('/api/get_b_path')
+              .then(response => response.json())
+              .then(coordinates => {
+                console.log(coordinates);
+                var polyline = L.polyline(coordinates, {color: 'red'}).addTo(map);
+              })
+              .catch(error => console.error('Error fetching coordinates:', error));
+
+        }
+        bellman_ford.addEventListener('click', compute_bellman_ford);
+    </script>
+</body>
+</html>
+
