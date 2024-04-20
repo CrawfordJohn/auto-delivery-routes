@@ -29,7 +29,8 @@ To create a virutal environment, in your new auto-delivery-routes folder run the
 py -m venv <env_name>
 ```
 
-(<env_name> can be any desired name for your environment, make sure to exclude the caret marks (<>))
+<env_name> can be any desired name for your environment.
+Make sure to exclude the caret marks (<>).
 
 ```
 .\<env_name>\Scripts\activate
