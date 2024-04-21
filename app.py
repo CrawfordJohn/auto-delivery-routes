@@ -75,10 +75,11 @@ def get_b_path():
     start_time = time.time()
     path = bellman_ford(G, start_node['osmid'], end_node['osmid'])
     elapsed_time = time.time() - start_time
+    distance = nx.shortest_path_length(G, start_node['osmid'], end_node['osmid'], weight='length') * 0.000621371
     latitude = [nodes_df[nodes_df['osmid'] == id]['y'].iloc[0] for id in path]
     longitude = [nodes_df[nodes_df['osmid'] == id]['x'].iloc[0] for id in path]
     coordinates = [{"lat": lat, "lng": lng} for lat, lng in zip(latitude, longitude)]
-    return jsonify(result= coordinates, elapsed_time = elapsed_time)
+    return jsonify(result= coordinates, elapsed_time = elapsed_time, distance = distance)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -204,6 +204,7 @@
               .then(response => response.json())
               .then(data => {
                   L.polyline(data.result, {color: 'red'}).addTo(map);
+                  totDistance.textContent = (parseInt(totDistance.textContent) + data.distance).toFixed(2);
                   bTimeTot += parseFloat(data.elapsed_time);
                 bIter += 1;
                 bTimeAvg.textContent = (parseFloat(bTimeTot) / parseFloat(bIter)).toFixed(5);
