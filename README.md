@@ -53,13 +53,15 @@ Your IDE will provide a link to a local host where you can view the web applicat
 
 <h2> User Interface </h2>
 
-![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/d51f4dc7-08a3-457c-9d3f-56e903ecae4a)
+![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/e51b86bb-0ba9-4d68-90d7-4517ba16b924)
 
-Once you have opened the link to the local host, a map will pop up randomly generating your start location (symbolized by the car icon) and a delivery destination (symbolized by the blue marker). You can click on the _Dijkstra_ or _Bellman Ford_ buttons to calculate the shortest path from the start location to the destination using both algorithms. A pop-up in the lower right hand corner will tell you how much time it took for the algorithm computing the shortest path to run. To make your next delivery, press the _Make Next Delivery!_ button.
 
-![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/5750574b-1a76-409d-a012-5dd9a258952a)
+Once you have opened the link to the local host, a map will pop up randomly generating your start location (symbolized by the car icon). You can click on the _Get New Delivery_ button to generate a random delivery destination. Next, click on either _Compute Route w/ Dijkstra's_ or _Compute Route w/ Bellman-Ford_ to calculate the shortest path from the start location to the destination using either Dijkstra's algorithm or Bellman-Ford's. The "Statistics" menu on the left side will tell you how many deliveries you have made thus far, the distance you have traveled, and the average time it has take to compute the shortest path to the destinations using both Dijkstra's algorithm or Bellman-Ford's. Press the _Get New Delivery_ button to generate a new delivery destination after you have computed the shortest path.
 
-![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/16ad45d8-cb56-4554-8297-433097b2e893)
+![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/3fc037b6-4dfb-47d8-bbf7-4fcbbc1b85df)
 
+![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/394e5495-fbbc-4e7b-82b3-22e8e48043a8)
+
+![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/053366c9-8669-4df5-8a69-79685418d37e)
 
 
