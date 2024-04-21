@@ -1,5 +1,4 @@
-from flask import Flask, request, render_template, jsonify
-import folium
+from flask import Flask, render_template, jsonify, session
 import pandas as pd
 import networkx as nx
 import time
@@ -9,7 +8,8 @@ from bf_file import bellman_ford
 
 
 app = Flask(__name__)
-init = True
+app.secret_key = 'secret'
+
 
 # Load Data
 nodes_df = pd.read_csv('nodes.csv')
@@ -24,11 +24,19 @@ edges_df = edges_df[edges_df['u'].isin(nodes_df['osmid']) &
 
 # Create Graph and Initialize Nodes
 G = nx.from_pandas_edgelist(edges_df, 'u', 'v', edge_attr=True, create_using=nx.Graph())
-start_node = nodes_df.sample(1).iloc[0]
-
 
 @app.route('/')
 def index():
+    session.clear()
+    global start_node
+    start_node = nodes_df.sample(1).iloc[0]
+
+    global end_node
+    end_node = None
+
+    global init
+    init = True
+
     return render_template("map.html")
 @app.route('/api/get_start')
 def init_map():
@@ -41,6 +49,7 @@ def get_delivery():
     if init:
         end_node = nodes_df.sample(1).iloc[0]
         location = {"name": int(end_node['osmid']), "lat": end_node['y'], 'lng': end_node['x']}
+        print(1)
         init = False
         return jsonify(location)
     else:
