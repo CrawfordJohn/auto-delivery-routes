@@ -46,6 +46,7 @@ def init_map():
 def get_delivery():
     global end_node
     global init
+    global start_node
     if init:
         end_node = nodes_df.sample(1).iloc[0]
         location = {"name": int(end_node['osmid']), "lat": end_node['y'], 'lng': end_node['x']}
@@ -53,7 +54,6 @@ def get_delivery():
         init = False
         return jsonify(location)
     else:
-        global start_node
         start_node = end_node
         end_node = nodes_df.sample(1).iloc[0]
         location = {"name": int(end_node['osmid']), "lat": end_node['y'], 'lng': end_node['x']}
@@ -79,6 +79,7 @@ def get_b_path():
     longitude = [nodes_df[nodes_df['osmid'] == id]['x'].iloc[0] for id in path]
     coordinates = [{"lat": lat, "lng": lng} for lat, lng in zip(latitude, longitude)]
     return jsonify(result= coordinates, elapsed_time = elapsed_time)
+
 if __name__ == "__main__":
     app.run(debug=True)
 

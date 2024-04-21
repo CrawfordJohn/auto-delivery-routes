@@ -26,6 +26,8 @@
             text-align: center;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%; /* Adjusted width for smaller screens */
+            max-width: 900px; /* Maximum width for larger screens */
         }
         .menu button {
             padding: 10px 20px;
@@ -64,8 +66,9 @@
             font-size: 14px;
         }
         #mapid {
-            height: 700px; /* Set a height for the map */
-            width: 1200px; /* Optional: Set a width for the map */
+            height: 400px; /* Set a height for the map */
+            width: 90%; /* Adjusted width for smaller screens */
+            max-width: 1200px;
         }
     </style>
 </head>
@@ -87,7 +90,7 @@
         <div id="mapid"></div> <!-- Map container added here -->
     </div>
     <script>
-        var map = L.map('mapid').setView([25.75, -80.25], 11);
+        var map = L.map('mapid').setView([25.75, -80.25], 10);
         var getDeliveryButton = document.getElementById('getDeliveryButton');
         var dijkstra = document.getElementById('dijkstra');
         var bellman_ford = document.getElementById('bellman-ford');
@@ -119,7 +122,7 @@
                 .then(response => response.json())
                 .then(data => {
                     L.marker([data.lat, data.lng], {icon: customIcon}).addTo(map)
-                        .bindPopup('Your custom marker popup content');
+                        .bindPopup('Your current location');
                 })
                 .catch(error => console.error('Error fetching location data:', error));
         }
