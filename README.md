@@ -58,6 +58,11 @@ Your IDE will provide a link to a local host where you can view the web applicat
 
 Once you have opened the link to the local host, a map will pop up randomly generating your start location (symbolized by the car icon). You can click on the _Get New Delivery_ button to generate a random delivery destination. Next, click on either _Compute Route w/ Dijkstra's_ or _Compute Route w/ Bellman-Ford_ to calculate the shortest path from the start location to the destination using either Dijkstra's algorithm or Bellman-Ford's. The "Statistics" menu on the left side will tell you how many deliveries you have made thus far, the distance you have traveled, and the average time it has take to compute the shortest path to the destinations using both Dijkstra's algorithm or Bellman-Ford's. Press the _Get New Delivery_ button to generate a new delivery destination after you have computed the shortest path.
 
+**NOTE:**
+It is expected for computing the shortest path with the Bellman-Ford algorithm to take a long time. It may be slow, but rest assured that ***the code is running!***
+Bellman-Ford's algorithm takes a lot longer to run than Dijkstra's, so we can say that Dijkstra's algorithm may be a better method to compute the shortest distance between nodes than Bellman-Ford's.
+
+
 ![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/3fc037b6-4dfb-47d8-bbf7-4fcbbc1b85df)
 
 ![image](https://github.com/CrawfordJohn/auto-delivery-routes/assets/64513150/394e5495-fbbc-4e7b-82b3-22e8e48043a8)
