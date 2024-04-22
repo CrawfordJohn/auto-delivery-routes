@@ -1,3 +1,4 @@
+"""
 import osmnx as ox
 
 #Define bounding box (Greater Miami Area)
@@ -8,5 +9,6 @@ fig, ax = ox.plot_graph(G)
 
 nodes, edges = ox.graph_to_gdfs(G, nodes=True, edges=True)
 
-#nodes[["y", "x", "street_count", "geometry"]].to_csv("nodes.csv")
-#edges[["osmid", "length", "geometry"]].to_csv("edges.csv")
+nodes[["y", "x"]].to_csv("nodes.csv")
+edges[["osmid", "length"]].to_csv("edges.csv")
+"""
