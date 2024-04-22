@@ -9,21 +9,21 @@ def dijkstra(graph, start, end, weight='length'):
     while priority_queue:
         curr_dist, curr_node = heapq.heappop(priority_queue)
 
-        # Break loop if the end node
+        # break loop if the end node
         if curr_node == end:
             break
 
-        # Explore neighbors
+        # explore neighbors
         for neighbor, data in graph[curr_node].items():
             neighbor_dist = curr_dist + data.get(weight, float('inf'))
 
-            # Update dist
+            # update dist
             if neighbor_dist < distances[neighbor]:
                 distances[neighbor] = neighbor_dist
                 predecessor[neighbor] = curr_node
                 heapq.heappush(priority_queue, (neighbor_dist, neighbor))
 
-    # Reconstruct the shortest path
+    # reconstruct the shortest path
     shortest_path = []
     node = end
     while node != start:

@@ -1,11 +1,11 @@
 def bellman_ford(graph, start, end, weight='length'):
-    #Initialize distances and predecessors
+    #initialize distances and predecessors
     distances = {node: float('inf') for node in graph}
     distances[start] = 0
     predecessor = {}
     updated = True
 
-    #Relax edges repeatedly until no updates occur
+    #keep updating shortest distances until no updates occur
     for _ in range(len(graph) - 1):
         if not updated:
             break
@@ -17,13 +17,8 @@ def bellman_ford(graph, start, end, weight='length'):
                     distances[neighbor] = neighbor_dist
                     predecessor[neighbor] = curr_node
                     updated = True
-    #Check for negative cycles
-    for curr_node in graph:
-        for neighbor, data in graph[curr_node].items():
-            neighbor_dist = distances[curr_node] + data.get(weight, float('inf'))
-            if neighbor_dist < distances[neighbor]:
-                raise ValueError("Graph contains negative cycle")
-    #Reconstruct the shortest path
+
+    #reconstruct the shortest path
     shortest_path = []
     node = end
     while node != start:
