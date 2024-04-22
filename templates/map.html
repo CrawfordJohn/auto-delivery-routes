@@ -70,6 +70,9 @@
             width: 90%; /* Adjusted width for smaller screens */
             max-width: 1200px;
         }
+        #bf_text {
+            display: none; /* Hide the text initially */
+        }
     </style>
 </head>
 <body>
@@ -79,6 +82,7 @@
         <button id="dijkstra" disabled>Compute Route w/ Dijkstra's</button>
         <button id="bellman-ford" disabled>Compute Route w/ Bellman-Ford</button>
     </div>
+    <p id="bf_text"> Bellman-Ford running... (should take 15-45 seconds) </p>
     <div class="horizontal-container">
         <div class="statistics">
             <h2>Statistics</h2>
@@ -94,6 +98,7 @@
         var getDeliveryButton = document.getElementById('getDeliveryButton');
         var dijkstra = document.getElementById('dijkstra');
         var bellman_ford = document.getElementById('bellman-ford');
+        var bf_text = document.getElementById('bf_text');
         var initialization = true;
         var prev_lat = 25.75;
         var prev_lon = -80.25;
@@ -200,6 +205,7 @@
             bellman_ford.disabled = true;
             getDeliveryButton.disabled = false;
             dijkstra.disabled = true;
+            bf_text.style.display = "block";
             fetch('/api/get_b_path')
               .then(response => response.json())
               .then(data => {
@@ -209,6 +215,7 @@
                 bIter += 1;
                 bTimeAvg.textContent = (parseFloat(bTimeTot) / parseFloat(bIter)).toFixed(5);
                 deliveryCount.textContent = parseInt(deliveryCount.textContent) + 1;
+                bf_text.style.display = "none";
               })
               .catch(error => console.error('Error fetching coordinates:', error));
         }
